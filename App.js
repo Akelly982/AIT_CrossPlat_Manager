@@ -1,25 +1,37 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState,useEffect} from 'react';
-import { ImageBackground, ScrollView, StyleSheet, Text, View, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
-import { FirebaseConfig } from './FirebaseConfig';
+import { View,Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { firebaseConfig } from './firebaseConfig';
 import * as firebase from 'firebase';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import { SignUp } from './components/SignUp';
-import {Login} from './components/Login';
+import { SignUp } from './components/pages/SignUp';
+import {Login} from './components/pages/Login';
+import { Home } from './components/pages/Home';
 
 
-const bkgImage = require('./assets/kingsAndSpades128_Darker.png')
-//const bkgImage = { URL: "./assets/favicon.png" }
 
 
 // if not initialized initialize
 if(!firebase.apps.length){
-  firebase.initializeApp(FirebaseConfig)
+  firebase.initializeApp(firebaseConfig)
 }
 
 
+
+
 export default function App() {
-  const [signUp,setSignUp] = useState( false )
+  const Stack = createStackNavigator();
+  const [userAuth,setUserAuth] = useState( false )
+
+  firebase.auth().onAuthStateChanged((user)=>{
+    if(user){
+      setUserAuth(true);
+    }else{
+      setUserAuth(false);
+    }
+  })
 
   const HandelSignUp = (email,password) => {
     console.log(email)
@@ -29,66 +41,76 @@ export default function App() {
     .then((response) => {
       console.log(response)
       //signed in
-      //HandelLogin(email,password);
+      setUserAuth(true)
     })
     .catch((error) => {
       console.log(error)
     })
   }
 
+
   const HandelLogin = (email,password) =>{
+    console.log(email)
+    console.log(password)
 
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      // Signed in
+      setUserAuth(true)
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+    });
   }
 
-  const ToggleSignUp = () => {
-    if (signUp === true) {
-      setSignUp(false)
-    }else{
-      setSignUp(true)
-    }
+
+  const HandelSignOut = () => {
+    firebase.auth().signOut().then(() => {
+      // Sign-out successful.
+      console.log("sign out successfull")
+    }).catch((error) => {
+      // An error happened.
+      console.log("sign out Error")
+    })
   }
 
 
-  if (signUp){
-    return (
-      <ImageBackground source={bkgImage} resizeMode="repeat" style={styles.bkgImage}>
-        <SignUp toggle={ToggleSignUp} handler={HandelSignUp}/>
-      </ImageBackground>
-    );
-  }else{
-    return (
-      <ImageBackground source={bkgImage} resizeMode="repeat" style={styles.bkgImage}>
-        <Login toggle={ToggleSignUp} handler={HandelLogin}/>
-      </ImageBackground>
-    );
-  }
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" options={{title: "Login"}}>
+          { (props) => <Login {...props} handler={HandelLogin} auth={userAuth}/>}
+        </Stack.Screen>
+        <Stack.Screen name="SignUp" options={{title: "SignUp"}}>
+          { (props) => <SignUp {...props} handler={HandelSignUp} auth={userAuth}/>}
+        </Stack.Screen>
+        <Stack.Screen name="Home" 
+          options={{
+            headerTitle: "myApp",
+            headerRight: () => (
+              <TouchableOpacity onPress={ () => HandelSignOut() }>
+                    <Text>Logout</Text>
+              </TouchableOpacity> 
+            ),
+          }}
+          >
+            {(props) => <Home />}
+        </Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 
   
 }
 
 const styles = StyleSheet.create({
-  // container: {
+  // bkgImage:{
   //   flex: 1,
-  //   backgroundColor: '#fff',
   //   alignItems: 'center',
   //   justifyContent: 'center',
-  // },
-  // sv: {
-  //   flex: 1,
-  //   backgroundColor: 'yellow',
-  // },
-  // keyAvoidContainer:{
-  //   flex:1,
-  // },
-  bkgImage:{
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  //   height: 1000,
+  // }
 
-    // position: 'absolute',
-    // zIndex: -1,
-    // width: Dimensions.get('window').width,
-    // height: Dimensions.get('window').height,
-    
-  }
 });
