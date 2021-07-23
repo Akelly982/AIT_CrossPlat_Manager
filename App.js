@@ -25,6 +25,8 @@ export default function App() {
   const Stack = createStackNavigator();
   const [userAuth,setUserAuth] = useState( false )
 
+  const [parent,setParent] = useState(null)
+
   firebase.auth().onAuthStateChanged((user)=>{
     if(user){
       setUserAuth(true);
@@ -80,24 +82,32 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
+
+
+        {/* initial login pages */}
         <Stack.Screen name="Login" options={{title: "Login"}}>
           { (props) => <Login {...props} handler={HandelLogin} auth={userAuth}/>}
         </Stack.Screen>
         <Stack.Screen name="SignUp" options={{title: "SignUp"}}>
           { (props) => <SignUp {...props} handler={HandelSignUp} auth={userAuth}/>}
         </Stack.Screen>
+
+
+        {/* Agile Task Manager */}
         <Stack.Screen name="Home" 
           options={{
-            headerTitle: "myApp",
+            headerTitle: "TaskCmd",
             headerRight: () => (
-              <TouchableOpacity onPress={ () => HandelSignOut() }>
-                    <Text>Logout</Text>
+              <TouchableOpacity onPress={ () => HandelSignOut() } style={styles.logoutBtn}> 
+                    <Text style={styles.logoutBtnText}>Logout</Text>
               </TouchableOpacity> 
             ),
           }}
           >
             {(props) => <Home />}
         </Stack.Screen>
+
+
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -112,5 +122,18 @@ const styles = StyleSheet.create({
   //   justifyContent: 'center',
   //   height: 1000,
   // }
+
+  logoutBtn:{
+    marginRight: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    backgroundColor: '#2b2b2b',
+
+  },
+
+  logoutBtnText:{
+    color: '#e8e8e8',
+  },
 
 });
