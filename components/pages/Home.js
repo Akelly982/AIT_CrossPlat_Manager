@@ -1,6 +1,7 @@
 
-import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState,useEffect}from 'react';
+import { FlatList, StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native';
+
 
 
 
@@ -12,35 +13,79 @@ const tempProject = [
     { id: '543523', name: "myProjectSum", state: 1},
     { id: '534134', name: "myProj", state: 1},
     { id: '164313', name: "myHeroDll", state: 1},
-
 ]
 
 export function Home (props){
 
-    
+    const [heldSelectedId, setHeldSelectedId] = useState('') 
+
+
+    useEffect(() => {
+        console.log("heldSelectedId changed: " + heldSelectedId)
+    }),[heldSelectedId]
+
 
     const renderItem = ({item}) => {
 
         //kept in scope of item if placed here
-        const testPress = () => {
+        //react to use input
+        //ITEM BUTTONS
+        const itemPress = () => {
             console.log("pressed: " + item.name)
 
         }
-
-        const testPressHeld = () => {
+        const itemPressHeld = () => {
             console.log("held: " + item.name)
+            setHeldSelectedId(item.id) 
         }
 
-        return (
+        //EDIT ITEM BTNS
+        const deletePress = () => {
+            console.log("delete: " + item.name)
+        }
+        const renamePress = () => {
+            console.log("rename: " + item.name)
+        }
+        const alterStatePress = () => {
+            console.log("alterState: " + item.name)
+        }
+
+
+        const BaseItem = () => (
             <TouchableOpacity
-                style={homeStyles.itemBtn}
-                onPress={() => testPress()}    
-                onLongPress={() => testPressHeld()}    
+                style={(item.id == heldSelectedId) ? homeStyles.itemBtnSelected :homeStyles.itemBtn}
+                onPress={() => itemPress()}    
+                onLongPress={() => itemPressHeld()}    
             >
                 <Text> {item.name} </Text>
             </TouchableOpacity>
-            
         )
+
+
+        if(item.id != heldSelectedId){
+            return(
+                <BaseItem />
+            )
+        }else{
+            return(
+                <View>
+                    <BaseItem />
+                    <View style={homeStyles.editCont}>
+                        <TouchableOpacity style={homeStyles.editBtnDelete} onPress={deletePress}>
+                            <Text style={homeStyles.editText}> delete </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={homeStyles.editBtn} onPress={renamePress}>
+                            <Text style={homeStyles.editText}> rename </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={homeStyles.editBtn} onPress={alterStatePress}>
+                            <Text style={homeStyles.editText}> alter state </Text>
+                        </TouchableOpacity>
+                    </View>
+                    
+                </View>
+            )
+        }
+        
 
     }
     
@@ -92,6 +137,38 @@ const homeStyles = StyleSheet.create({
         backgroundColor: '#e8e8e8',
         paddingVertical: 25,
         marginVertical: 10,
+    },
+
+    itemBtnSelected:{
+        backgroundColor: '#e8e8e8',
+        paddingVertical: 25,
+        marginTop: 10,
+    },
+
+    editCont:{
+        marginBottom: 10,
+        backgroundColor: "#3b3b3b",
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+
+    editText:{
+        color: "#e8e8e8",
+    },
+
+    editBtnDelete:{
+        backgroundColor: 'lightcoral',
+        padding: 2,
+        borderRadius: 4,
+    },
+
+    editBtn:{
+        backgroundColor: 'coral',
+        padding: 2,
+        borderRadius: 4,
     }
 
 })
