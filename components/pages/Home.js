@@ -1,4 +1,5 @@
 
+import { useNavigation } from '@react-navigation/native';
 import React, {useState,useEffect}from 'react';
 import { FlatList, StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native';
 
@@ -16,13 +17,21 @@ const tempProject = [
 ]
 
 export function Home (props){
-
+    const navigation = useNavigation()
     const [heldSelectedId, setHeldSelectedId] = useState('') 
 
 
     useEffect(() => {
         console.log("heldSelectedId changed: " + heldSelectedId)
+
     }),[heldSelectedId]
+
+    // useEffect(() => {
+    //     console.log('parentId Changed: ' + props.parent)
+
+    //     //if parent changed in App.js
+        
+    // }),[props.parent]
 
 
     const renderItem = ({item}) => {
@@ -32,7 +41,12 @@ export function Home (props){
         //ITEM BUTTONS
         const itemPress = () => {
             console.log("pressed: " + item.name)
-
+            props.handler(item.id,item.name)
+            
+            //if above changed is all good navigate
+            if(props.parent != null && props.parentName != null){
+                navigation.navigate('Tasks')
+            }
         }
         const itemPressHeld = () => {
             console.log("held: " + item.name)

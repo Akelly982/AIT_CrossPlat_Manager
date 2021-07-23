@@ -9,7 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { SignUp } from './components/pages/SignUp';
 import {Login} from './components/pages/Login';
 import { Home } from './components/pages/Home';
-
+import { Tasks } from './components/pages/Tasks';
 
 
 
@@ -24,8 +24,8 @@ if(!firebase.apps.length){
 export default function App() {
   const Stack = createStackNavigator();
   const [userAuth,setUserAuth] = useState( false )
-
   const [parent,setParent] = useState(null)
+  const [parentName,setParentName] = useState(null)
 
   firebase.auth().onAuthStateChanged((user)=>{
     if(user){
@@ -68,6 +68,10 @@ export default function App() {
 
 
   const HandelSignOut = () => {
+    setParentName(null)
+    setParent(null)
+    setUserAuth(false)
+
     firebase.auth().signOut().then(() => {
       // Sign-out successful.
       console.log("sign out successfull")
@@ -77,6 +81,11 @@ export default function App() {
     })
   }
 
+
+  const HandelParent = (parentId,parentName) => {
+    setParent(parentId)
+    setParentName(parentName)
+  }
 
 
   return (
@@ -104,7 +113,15 @@ export default function App() {
             ),
           }}
           >
-            {(props) => <Home />}
+            {(props) => <Home {...props} parent={parent} parentName={parentName} handler={HandelParent}/>}
+        </Stack.Screen>
+
+        <Stack.Screen name="Tasks" 
+          options={{
+            headerTitle: "Tasks: " + (parentName != null ? parentName : "error parent name null"),
+          }}
+          >
+            {(props) => <Tasks {...props} parent={parent}/>}
         </Stack.Screen>
 
 
