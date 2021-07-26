@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
+import { LogBox } from 'react-native';
 import React, {useState,useEffect} from 'react';
 import { View,Text, StyleSheet, TouchableOpacity} from 'react-native';
 import { firebaseConfig } from './firebaseConfig';
 import * as firebase from 'firebase';
+import 'firebase/firestore';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -10,8 +12,10 @@ import { SignUp } from './components/pages/SignUp';
 import {Login} from './components/pages/Login';
 import { Home } from './components/pages/Home';
 import { Tasks } from './components/pages/Tasks';
+import { AddNewProject } from './components/pages/AddNewProject';
 
 
+LogBox.ignoreLogs(['Setting a timer'])
 
 // if not initialized initialize
 if(!firebase.apps.length){
@@ -23,19 +27,26 @@ if(!firebase.apps.length){
 
 export default function App() {
   const Stack = createStackNavigator();
+  const dbh = firebase.firestore();
+
+  const [user,setUser] = useState()
   const [userAuth,setUserAuth] = useState( false )
   const [parent,setParent] = useState(null)
   const [parentName,setParentName] = useState(null)
+  const [homeUpdater,setHomeUpdater] = useState(true)
 
   firebase.auth().onAuthStateChanged((user)=>{
     if(user){
+      //console.log(user.uid)
+      setUser(user)
       setUserAuth(true);
     }else{
+      setUser(null)
       setUserAuth(false);
     }
   })
 
-  const HandelSignUp = (email,password) => {
+  const HandleSignUp = (email,password) => {
     console.log(email)
     console.log(password)
 
@@ -51,7 +62,7 @@ export default function App() {
   }
 
 
-  const HandelLogin = (email,password) =>{
+  const HandleLogin = (email,password) =>{
     console.log(email)
     console.log(password)
 
@@ -67,7 +78,7 @@ export default function App() {
   }
 
 
-  const HandelSignOut = () => {
+  const HandleSignOut = () => {
     setParentName(null)
     setParent(null)
     setUserAuth(false)
@@ -82,9 +93,13 @@ export default function App() {
   }
 
 
-  const HandelParent = (parentId,parentName) => {
+  const HandleParent = (parentId,parentName) => {
     setParent(parentId)
     setParentName(parentName)
+  }
+
+  const HandleHomeUpdater = (val) => {
+    setHomeUpdater(val)
   }
 
 
@@ -95,33 +110,41 @@ export default function App() {
 
         {/* initial login pages */}
         <Stack.Screen name="Login" options={{title: "Login"}}>
-          { (props) => <Login {...props} handler={HandelLogin} auth={userAuth}/>}
+          { (props) => <Login {...props} handler={HandleLogin} auth={userAuth}/>}
         </Stack.Screen>
         <Stack.Screen name="SignUp" options={{title: "SignUp"}}>
-          { (props) => <SignUp {...props} handler={HandelSignUp} auth={userAuth}/>}
+          { (props) => <SignUp {...props} handler={HandleSignUp} auth={userAuth}/>}
         </Stack.Screen>
 
 
         {/* Agile Task Manager */}
         <Stack.Screen name="Home" 
           options={{
-            headerTitle: "TaskCmd",
+            headerTitle: "TaskCmd: Home",
             headerRight: () => (
-              <TouchableOpacity onPress={ () => HandelSignOut() } style={styles.logoutBtn}> 
+              <TouchableOpacity onPress={ () => HandleSignOut() } style={styles.logoutBtn}> 
                     <Text style={styles.logoutBtnText}>Logout</Text>
               </TouchableOpacity> 
             ),
           }}
           >
-            {(props) => <Home {...props} parent={parent} parentName={parentName} handler={HandelParent}/>}
+            {(props) => <Home {...props} parent={parent} parentName={parentName} handler={HandleParent} handleHomeUpdater={HandleHomeUpdater} homeUpdater={homeUpdater} user={user} db={dbh}/>}
         </Stack.Screen>
 
         <Stack.Screen name="Tasks" 
           options={{
-            headerTitle: "Tasks: " + (parentName != null ? parentName : "error parent name null"),
+            headerTitle: "Tasks: " + (parentName != null ? parentName : "error parentName null"),
           }}
           >
             {(props) => <Tasks {...props} parent={parent}/>}
+        </Stack.Screen>
+
+        <Stack.Screen name="AddNewProject" 
+          options={{
+            headerTitle: "Add new project",
+          }}
+          >
+            {(props) => <AddNewProject {...props} user={user} db={dbh} handleHomeUpdater={HandleHomeUpdater} />}
         </Stack.Screen>
 
 

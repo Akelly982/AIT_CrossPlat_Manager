@@ -1,7 +1,7 @@
 
 import { useNavigation } from '@react-navigation/native';
 import React, {useState,useEffect}from 'react';
-import { FlatList, StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 
 
@@ -14,54 +14,89 @@ const tempProject = [
     { id: '543523', name: "myProjectSum", state: 1},
     { id: '534134', name: "myProj", state: 1},
     { id: '164313', name: "myHeroDll", state: 1},
+    { id: '431223', name: "myHeroExe", state: 1},
+    { id: '131113', name: "myHeroBin", state: 1},
 ]
+
+
 
 export function Home (props){
     const navigation = useNavigation()
     const [heldSelectedId, setHeldSelectedId] = useState('') 
-
+    const [data,setData] = useState([])
+    
 
     useEffect(() => {
         console.log("heldSelectedId changed: " + heldSelectedId)
-
     }),[heldSelectedId]
+
+    useEffect(() =>{
+        if(props.homeUpdater){
+            updateHomeList()
+        }
+    }),[props.homeUpdater]
 
     // useEffect(() => {
     //     console.log('parentId Changed: ' + props.parent)
-
     //     //if parent changed in App.js
-        
     // }),[props.parent]
+
+
+
+
+
+    const updateHomeList = () => {
+        props.handleHomeUpdater(false)
+        setData([]) //empty before filling
+        console.log("start Data: " + data.length)
+
+        props.db.collection('Users').doc(props.user.uid).collection('Projects').get()
+        .then((querySnapshot) => {
+            let tempArray = []
+            querySnapshot.forEach(doc => {
+                console.log(doc.id, " => ", doc.data().projectName, " / ", doc.data().state)
+                let tempItem = {id: doc.id, projectName: doc.data().projectName, state: doc.data().state}
+                tempArray.push(tempItem)
+            }) 
+            setData(tempArray)
+        })
+        .catch((error) => {
+            console.log("Error getting Project collection items:", error);
+        })
+        .finally(()=>{
+            console.log("end Data: " + data.length)
+        })
+
+    }
+
+
+    const fabBtn = () => {
+        console.log("fab pressed")
+        navigation.navigate('AddNewProject')
+    }
 
 
     const renderItem = ({item}) => {
 
-        //kept in scope of item if placed here
-        //react to use input
-        //ITEM BUTTONS
         const itemPress = () => {
             console.log("pressed: " + item.name)
-            props.handler(item.id,item.name)
-            
-            //if above changed is all good navigate
-            if(props.parent != null && props.parentName != null){
-                navigation.navigate('Tasks')
-            }
+            props.handler(item.id,item.projectName)
+            navigation.navigate('Tasks')
         }
         const itemPressHeld = () => {
-            console.log("held: " + item.name)
+            console.log("held: " + item.projectName)
             setHeldSelectedId(item.id) 
         }
 
         //EDIT ITEM BTNS
         const deletePress = () => {
-            console.log("delete: " + item.name)
+            console.log("delete: " + item.projectName)
         }
         const renamePress = () => {
-            console.log("rename: " + item.name)
+            console.log("rename: " + item.projectName)
         }
         const alterStatePress = () => {
-            console.log("alterState: " + item.name)
+            console.log("alterState: " + item.projectName)
         }
 
 
@@ -71,11 +106,11 @@ export function Home (props){
                 onPress={() => itemPress()}    
                 onLongPress={() => itemPressHeld()}    
             >
-                <Text> {item.name} </Text>
+                <Text> {item.projectName} </Text>
             </TouchableOpacity>
         )
 
-
+        //RenderItem Returns
         if(item.id != heldSelectedId){
             return(
                 <BaseItem />
@@ -94,8 +129,7 @@ export function Home (props){
                         <TouchableOpacity style={homeStyles.editBtn} onPress={alterStatePress}>
                             <Text style={homeStyles.editText}> alter state </Text>
                         </TouchableOpacity>
-                    </View>
-                    
+                    </View>  
                 </View>
             )
         }
@@ -107,12 +141,12 @@ export function Home (props){
     return(
         
             <View style={homeStyles.container}>
-                <View style={homeStyles.topCont}>
-                    <Text>TaskGroups</Text>
-                </View>
+                <TouchableOpacity style={homeStyles.fab} onPress={fabBtn}>
+                    <Text style={homeStyles.fabText}>+</Text>
+                </TouchableOpacity>
                 <FlatList
                     style={homeStyles.flist}
-                    data={tempProject}
+                    data={data}
                     renderItem={renderItem} 
                     keyExtractor={item => item.id}
                     extraData={props.itemSelectedValue}
@@ -120,10 +154,15 @@ export function Home (props){
             </View>
 
     )
+
+
+    
+    
 }
 
 
 const homeStyles = StyleSheet.create({
+
 
     container:{
         flex:1,
@@ -131,6 +170,28 @@ const homeStyles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#fff',
     }, 
+
+    fab:{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        zIndex: 99,
+        position: 'absolute',
+        bottom: 15,
+        right: 15,
+
+        width:60,
+        height: 60,
+        borderRadius: 60,
+        backgroundColor: 'orange',
+        
+    },
+
+    fabText:{
+        color: '#e8e8e8',
+        fontSize: 40,
+    },
 
     topCont:{
         display: 'flex',

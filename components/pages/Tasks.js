@@ -9,37 +9,91 @@ const tempItems = [
     { id: '457644', desc: "myProjectName", state: 'Todo'},
 ]
 
+const SHOW_ALL = 'ALL'
+const SHOW_SPRINT = 'SPRINT'
+const SHOW_TODO = 'TODO'
+const SHOW_COMPLETE = 'COMPLETE'
+
 export function Tasks (props){
 
-    const [heldSelectedId, setHeldSelectedId] = useState('') 
+    const [viewSelected, setViewSelected] = useState(SHOW_ALL) 
 
 
-    useEffect(() => {
-        console.log("heldSelectedId changed: " + heldSelectedId)
-    }),[heldSelectedId]
+
+
+    // useEffect(() =>{
+    //     console.log("selected view: " + viewSelected)
+    // }),[viewSelected]
+    
+    
+    const allPressed = () => {
+        //set if not alredy set
+        if(viewSelected != SHOW_ALL){
+            setViewSelected(SHOW_ALL)
+        }
+    }
+
+    const todoPressed = () => {
+        if(viewSelected != SHOW_TODO){
+            setViewSelected(SHOW_TODO)
+        }
+    }
+
+    const sprintPressed = () => {
+        if(viewSelected != SHOW_SPRINT){
+            setViewSelected(SHOW_SPRINT)
+        }
+    }
+
+    const completePressed = () => {
+        //set if not alredy set
+        if(viewSelected != SHOW_COMPLETE){
+            setViewSelected(SHOW_COMPLETE)
+        }
+    }
 
 
     const renderItem = ({item}) => {
-        
         return(
             <Text>I am the Child tasks</Text>
         )
-
     }
-    
+
+
+
+
+    const NavContainer = () => (
+            <View style={taskStyles.navCont}>
+                <TouchableOpacity style={ viewSelected == SHOW_ALL  ? taskStyles.navBtnSelected : taskStyles.navBtn  } onPress={allPressed}>
+                    <Text>All</Text>
+                </TouchableOpacity>
+
+                <Text> - </Text>
+                <TouchableOpacity style={ viewSelected == SHOW_SPRINT  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={sprintPressed}>
+                    <Text>Sprint</Text>
+                </TouchableOpacity>
+
+                <Text> - </Text>
+                <TouchableOpacity style={ viewSelected == SHOW_TODO  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={todoPressed}>
+                    <Text>Todo</Text>
+                </TouchableOpacity>
+
+                <Text> - </Text>
+                <TouchableOpacity style={ viewSelected == SHOW_COMPLETE  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={completePressed}>
+                    <Text>Complete</Text>
+                </TouchableOpacity>
+            </View>
+    )
    
     return(
-        
             <View style={taskStyles.container}>
-                <View style={taskStyles.topCont}>
-                    <Text>TaskGroups</Text>
-                </View>
+                <NavContainer />
                 <FlatList
                     style={taskStyles.flist}
                     data={tempItems}
                     renderItem={renderItem} 
                     keyExtractor={item => item.id}
-                    extraData={props.itemSelectedValue}
+                    // extraData={props.itemSelectedValue}
                 />
             </View>
 
@@ -56,14 +110,31 @@ const taskStyles = StyleSheet.create({
         backgroundColor: '#fff',
     }, 
 
-    topCont:{
+    navCont:{
         display: 'flex',
-        justifyContent: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
-        backgroundColor: '#fff',
         height: 50,
-        backgroundColor: 'red',
+        backgroundColor: '#e8e8e8',
         width: '100%',
+        paddingHorizontal: '20%',
+    },
+
+    navBtn:{
+        paddingVertical: 2,
+        paddingHorizontal: 1,
+        marginHorizontal: 1,
+    },
+
+    navBtnSelected:{
+        paddingVertical: 2,
+        paddingHorizontal: 10,
+        marginHorizontal: 1,
+
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderRadius: 2,
     },
 
     flist:{
