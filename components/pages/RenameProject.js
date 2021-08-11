@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/core';
 // add for auto generate id
 //{ id: '131113', name: "myHeroBin", state: 1}
 
-export function AddNewProject(props) {
+export function RenameProject(props) {
     const navigation = useNavigation();
 
     const [projectName, setProjectName] = useState('')
@@ -16,8 +16,8 @@ export function AddNewProject(props) {
     
 
 
-    const newProjectSubmit = () => {
-        console.log('newProject :' + projectName)
+    const renameProjectSubmit = () => {
+        console.log('renameProject :' + projectName)
 
         let checker = false
         let uploadName = projectName.trim()
@@ -35,19 +35,34 @@ export function AddNewProject(props) {
 
 
         if(checker){
-            //using add should give it a generated id
-            props.db.collection('Users').doc(props.user.uid).collection('Projects').add({
-                projectName: projectName,
-                state: "ACTIVE"
+            // //using add should give it a generated id
+            // props.db.collection('Users').doc(props.user.uid).collection('Projects').add({
+            //     projectName: uploadName,
+            //     state: "ACTIVE"
+            // })
+            // .then(() => {
+            //     console.log("Document successfully written!")
+            //     props.handleHomeUpdater(true)
+            //     navigation.goBack()
+            // })
+            // .catch((error) => {
+            //     console.error("Error writing document: ", error);
+            // });
+
+            let ref = props.db.collection("Users").doc(props.user.uid).collection('Projects').doc(props.parentId)
+            return ref.update({
+                projectName: uploadName    //set state to inv
             })
             .then(() => {
-                console.log("Document successfully written!")
-                props.handleHomeUpdater(true)
+                console.log("Project rename successfull")
+                props.handleHomeUpdater(true) //trigger home data reload
                 navigation.goBack()
             })
             .catch((error) => {
-                console.error("Error writing document: ", error);
-            });
+                let e = 'ERROR Item state change: ' + error
+                console.log(e)
+                setErrorMsg(e)
+            })
         }
 
 
@@ -59,7 +74,7 @@ export function AddNewProject(props) {
     const ErrorMsg = () => {
         if (errorMsg != null){
             return(
-                <Text style={addNewProjectStyles.errorMsg}> Error: {errorMsg}</Text>
+                <Text style={renameProjectStyles.errorMsg}> Error: {errorMsg}</Text>
             )
         }else{
             // this does work returning null does not cause an error
@@ -71,17 +86,17 @@ export function AddNewProject(props) {
 
 
     return (
-        <View style={addNewProjectStyles.bkg} >
-            <View style={addNewProjectStyles.container}>
+        <View style={renameProjectStyles.bkg} >
+            <View style={renameProjectStyles.container}>
                 <ErrorMsg/>
-                <Text style={addNewProjectStyles.title}> -- New Project: -- </Text>
-                <Text>Project name: </Text>
+                <Text style={renameProjectStyles.title}> -- Rename Project: -- </Text>
+                <Text>New Project name: </Text>
                 <TextInput
                     onChangeText={ (val) => setProjectName(val) }
-                    style={addNewProjectStyles.input}
+                    style={renameProjectStyles.input}
                 />
-                <TouchableOpacity onPress={newProjectSubmit} style={addNewProjectStyles.submitBtn}>
-                    <Text style={addNewProjectStyles.submitText}>Submit</Text>
+                <TouchableOpacity onPress={renameProjectSubmit} style={renameProjectStyles.submitBtn}>
+                    <Text style={renameProjectStyles.submitText}>Submit</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -93,7 +108,7 @@ export function AddNewProject(props) {
 
 
 
-const addNewProjectStyles = StyleSheet.create({
+const renameProjectStyles = StyleSheet.create({
     bkg:{
         flex: 1,
         alignItems: 'center',

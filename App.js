@@ -4,7 +4,7 @@ import React, {useState,useEffect} from 'react';
 import { View,Text, StyleSheet, TouchableOpacity} from 'react-native';
 import { firebaseConfig } from './firebaseConfig';
 import * as firebase from 'firebase';
-import 'firebase/firestore';
+//import 'firebase/firestore';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -13,6 +13,9 @@ import {Login} from './components/pages/Login';
 import { Home } from './components/pages/Home';
 import { Tasks } from './components/pages/Tasks';
 import { AddNewProject } from './components/pages/AddNewProject';
+import { AddNewTask } from './components/pages/AddNewTask';
+import { RenameProject } from './components/pages/RenameProject';
+
 
 
 LogBox.ignoreLogs(['Setting a timer'])
@@ -29,32 +32,28 @@ export default function App() {
   const Stack = createStackNavigator();
   const dbh = firebase.firestore();
 
-  const [user,setUser] = useState()
-  const [userAuth,setUserAuth] = useState( false )
-  const [parent,setParent] = useState(null)
+  const [user,setUser] = useState(false)
+  const [parentId,setParentId] = useState(null)
   const [parentName,setParentName] = useState(null)
   const [homeUpdater,setHomeUpdater] = useState(true)
+  const [taskUpdater,setTaskUpdater] = useState(true)
 
   firebase.auth().onAuthStateChanged((user)=>{
     if(user){
       //console.log(user.uid)
       setUser(user)
-      setUserAuth(true);
     }else{
-      setUser(null)
-      setUserAuth(false);
+      setUser(false)
     }
   })
 
   const HandleSignUp = (email,password) => {
-    console.log(email)
-    console.log(password)
+    console.log("Sign Up")
 
     firebase.auth().createUserWithEmailAndPassword(email,password)
     .then((response) => {
-      console.log(response)
       //signed in
-      setUserAuth(true)
+      setUser(response)
     })
     .catch((error) => {
       console.log(error)
@@ -63,29 +62,28 @@ export default function App() {
 
 
   const HandleLogin = (email,password) =>{
-    console.log(email)
-    console.log(password)
+    console.log("Login")
 
     firebase.auth().signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
+    .then((user) => {
       // Signed in
-      setUserAuth(true)
+      setUser(user)
     })
     .catch((error) => {
       var errorCode = error.code;
       var errorMessage = error.message;
+      console.log('ERROR: ' + errorMessage)
     });
   }
 
 
   const HandleSignOut = () => {
-    setParentName(null)
-    setParent(null)
-    setUserAuth(false)
-
+    console.log("Logout btn")
+    
     firebase.auth().signOut().then(() => {
       // Sign-out successful.
       console.log("sign out successfull")
+      setUser(false)
     }).catch((error) => {
       // An error happened.
       console.log("sign out Error")
@@ -94,12 +92,17 @@ export default function App() {
 
 
   const HandleParent = (parentId,parentName) => {
-    setParent(parentId)
+    setParentId(parentId)
     setParentName(parentName)
   }
 
   const HandleHomeUpdater = (val) => {
     setHomeUpdater(val)
+  }
+
+  const HandleTaskUpdater = (val) => {
+    setTaskUpdater(val)
+    console.log("taskUPS: " + taskUpdater)
   }
 
 
@@ -110,10 +113,10 @@ export default function App() {
 
         {/* initial login pages */}
         <Stack.Screen name="Login" options={{title: "Login"}}>
-          { (props) => <Login {...props} handler={HandleLogin} auth={userAuth}/>}
+          { (props) => <Login {...props} handler={HandleLogin} auth={user}/>}
         </Stack.Screen>
         <Stack.Screen name="SignUp" options={{title: "SignUp"}}>
-          { (props) => <SignUp {...props} handler={HandleSignUp} auth={userAuth}/>}
+          { (props) => <SignUp {...props} handler={HandleSignUp} auth={user}/>}
         </Stack.Screen>
 
 
@@ -128,7 +131,7 @@ export default function App() {
             ),
           }}
           >
-            {(props) => <Home {...props} parent={parent} parentName={parentName} handler={HandleParent} handleHomeUpdater={HandleHomeUpdater} homeUpdater={homeUpdater} user={user} db={dbh}/>}
+            {(props) => <Home {...props} parentId={parentId} parentName={parentName} handleParent={HandleParent} handleHomeUpdater={HandleHomeUpdater} homeUpdater={homeUpdater} auth={user} db={dbh}/>}
         </Stack.Screen>
 
         <Stack.Screen name="Tasks" 
@@ -136,8 +139,11 @@ export default function App() {
             headerTitle: "Tasks: " + (parentName != null ? parentName : "error parentName null"),
           }}
           >
-            {(props) => <Tasks {...props} parent={parent}/>}
+            {(props) => <Tasks {...props} parentId={parentId} handleTaskUpdater={HandleTaskUpdater} taskUpdater={taskUpdater} db={dbh} auth={user} />}
         </Stack.Screen>
+
+
+        
 
         <Stack.Screen name="AddNewProject" 
           options={{
@@ -145,6 +151,22 @@ export default function App() {
           }}
           >
             {(props) => <AddNewProject {...props} user={user} db={dbh} handleHomeUpdater={HandleHomeUpdater} />}
+        </Stack.Screen>
+
+        <Stack.Screen name="AddNewTask" 
+          options={{
+            headerTitle: "Add new Task",
+          }}
+          >
+            {(props) => <AddNewTask {...props} user={user} parentId={parentId} db={dbh} handleTaskUpdater={HandleTaskUpdater} />}
+        </Stack.Screen>
+
+        <Stack.Screen name="RenameProject" 
+          options={{
+            headerTitle: "Rename: " + (parentName != null ? parentName : "error parentName null") ,
+          }}
+          >
+            {(props) => <RenameProject {...props} user={user} db={dbh} handleHomeUpdater={HandleHomeUpdater} parentId={parentId} />}
         </Stack.Screen>
 
 

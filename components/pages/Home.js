@@ -6,65 +6,83 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 
 
 
-const tempProject = [
-    { id: '457644', name: "myProjectName", state: 1},
-    { id: '224543', name: "loremIps", state: 1},
-    { id: '333213', name: "lorHipson", state: 1},
-    { id: '123414', name: "sumLoreSum", state: 1},
-    { id: '543523', name: "myProjectSum", state: 1},
-    { id: '534134', name: "myProj", state: 1},
-    { id: '164313', name: "myHeroDll", state: 1},
-    { id: '431223', name: "myHeroExe", state: 1},
-    { id: '131113', name: "myHeroBin", state: 1},
-]
+// const tempProject = [
+//     { id: '457644', name: "myProjectName", state: 1},
+//     { id: '224543', name: "loremIps", state: 1},
+//     { id: '333213', name: "lorHipson", state: 1},
+//     { id: '123414', name: "sumLoreSum", state: 1},
+//     { id: '543523', name: "myProjectSum", state: 1},
+//     { id: '534134', name: "myProj", state: 1},
+//     { id: '164313', name: "myHeroDll", state: 1},
+//     { id: '431223', name: "myHeroExe", state: 1},
+//     { id: '131113', name: "myHeroBin", state: 1},
+// ]
 
 
+const STATE_ACTIVE = "ACTIVE"
+const STATE_COMPLETE = "COMPLETE"
 
 export function Home (props){
     const navigation = useNavigation()
     const [heldSelectedId, setHeldSelectedId] = useState('') 
     const [data,setData] = useState([])
+
+    const [initLoad, setInitLoad] = useState(true) //sometimes list does not update -- this is a support bool
     
+
+
+    useEffect(()=> {
+        console.log("Home propsAuth: " + props.auth)
+        if(props.auth == false){
+            //doing this resets the stack so their is no back button
+            navigation.reset({ index: 0, routes: [ {name: "Login"} ]})
+        }
+    },[props.auth])
 
     useEffect(() => {
         console.log("heldSelectedId changed: " + heldSelectedId)
     }),[heldSelectedId]
 
     useEffect(() =>{
-        if(props.homeUpdater){
+        if(props.homeUpdater || initLoad){
             updateHomeList()
         }
+        setInitLoad(false)
     }),[props.homeUpdater]
 
-    // useEffect(() => {
-    //     console.log('parentId Changed: ' + props.parent)
-    //     //if parent changed in App.js
-    // }),[props.parent]
 
-
-
-
-
+    
     const updateHomeList = () => {
-        props.handleHomeUpdater(false)
+        props.handleHomeUpdater(false)  //stops use effect above from looping runs once
         setData([]) //empty before filling
-        console.log("start Data: " + data.length)
 
-        props.db.collection('Users').doc(props.user.uid).collection('Projects').get()
+        //observer 
+        // const ref = props.db.collection('Users').doc(props.auth.uid).collection('Projects')
+        // ref.onSnapshot((querySnapshot) => {
+        //     let myData = []
+        //     querySnapshot.forEach((doc)=>{
+        //         console.log(doc.id, " => ", doc.data().projectName, " / ", doc.data().state)
+        //         let tempItem = {id: doc.id, projectName: doc.data().projectName, state: doc.data().state}
+        //         myData.push(tempItem)
+        //     })
+        //     setData(myData)
+        // })
+
+        //get data once
+        // NOTE --- when ordering by state we are comparing string values not numbers ACTIVE / COMPLETE  (COMPLETE shows second in this scenario)
+        const ref = props.db.collection('Users').doc(props.auth.uid).collection('Projects').orderBy("state")
+        ref.get()
         .then((querySnapshot) => {
-            let tempArray = []
-            querySnapshot.forEach(doc => {
-                console.log(doc.id, " => ", doc.data().projectName, " / ", doc.data().state)
+            let myData = []
+            querySnapshot.forEach((doc)=>{
+                //console.log(doc.id, " => ", doc.data().projectName, " / ", doc.data().state)
                 let tempItem = {id: doc.id, projectName: doc.data().projectName, state: doc.data().state}
-                tempArray.push(tempItem)
-            }) 
-            setData(tempArray)
+                myData.push(tempItem)
+            })
+            setData(myData)
         })
-        .catch((error) => {
-            console.log("Error getting Project collection items:", error);
-        })
-        .finally(()=>{
-            console.log("end Data: " + data.length)
+        .catch((error)=>{
+            console.log("UpdateHomeList ERROR: " + error)
         })
 
     }
@@ -76,37 +94,94 @@ export function Home (props){
     }
 
 
-    const renderItem = ({item}) => {
+    //---------------------------------------------------------------------
+    //-------------------- ITEM EDITS -------------------------------------
 
+    const invertState = ((item) => {
+        //Find what state i am currently (inherently i assume it is STATE_ACTIVE most likely result) 
+        let inv = STATE_COMPLETE
+        if(item.state == STATE_COMPLETE){     // I can skip the else due to it being pre set the the other result
+            inv = STATE_ACTIVE
+        }
+
+        let ref = props.db.collection("Users").doc(props.auth.uid).collection('Projects').doc(item.id)
+        return ref.update({
+            state: inv   //set state to inv
+        })
+        .then(() => {
+            console.log("state change successfull")
+            console.log("stateChangedTO: " + inv)
+            props.handleHomeUpdater(true) //trigger home data reload
+        })
+        .catch((error) => {
+            console.log('ERROR Item state change: ' + error)
+        })
+    })
+
+    const deleteDoc = ((item) => {
+        let ref = props.db.collection("Users").doc(props.auth.uid).collection('Projects').doc(item.id)
+        ref.delete()
+        .then(()=>{
+            console.log("Delete successfull")
+            props.handleHomeUpdater(true) //trigger home data reload
+        })  
+        .catch((error)=>{
+            console.log('ERROR deleteDoc: ' + error)
+        })
+    })
+
+
+    //---------------------------------------------------------------------
+    //-------------------- ITEM Render -------------------------------------
+
+    const renderItem = ({item}) => {
         const itemPress = () => {
             console.log("pressed: " + item.name)
-            props.handler(item.id,item.projectName)
+            props.handleParent(item.id,item.projectName)  //give some data to app.js for child page // parent id and name
             navigation.navigate('Tasks')
+            setHeldSelectedId('') //reset selected item
         }
         const itemPressHeld = () => {
-            console.log("held: " + item.projectName)
-            setHeldSelectedId(item.id) 
+            //console.log("held: " + item.projectName)
+
+            //if item is already selected deslect it
+            if(item.id == heldSelectedId){
+                setHeldSelectedId('')
+            }else{
+                setHeldSelectedId(item.id) 
+            }
         }
 
         //EDIT ITEM BTNS
         const deletePress = () => {
-            console.log("delete: " + item.projectName)
+            //console.log("delete: " + item.projectName)
+            if(heldSelectedId == item.id){
+                deleteDoc(item)
+            }
         }
         const renamePress = () => {
-            console.log("rename: " + item.projectName)
+            //console.log("rename: " + item.projectName)
+            if(heldSelectedId == item.id){
+                props.handleParent(item.id,item.projectName)  //give some data to app.js for child page // parent id and name 
+                navigation.navigate('RenameProject')
+            }
         }
         const alterStatePress = () => {
-            console.log("alterState: " + item.projectName)
+            //console.log("alterState: " + item.projectName)
+            if(heldSelectedId == item.id){
+                invertState(item)
+            }
         }
 
 
         const BaseItem = () => (
             <TouchableOpacity
-                style={(item.id == heldSelectedId) ? homeStyles.itemBtnSelected :homeStyles.itemBtn}
+                style={(item.id == heldSelectedId) ? homeStyles.itemBtnSelected : homeStyles.itemBtn}
                 onPress={() => itemPress()}    
                 onLongPress={() => itemPressHeld()}    
             >
-                <Text> {item.projectName} </Text>
+                <View style={(item.state == STATE_ACTIVE) ? homeStyles.itemActive : homeStyles.itemComplete}></View>
+                <Text style={homeStyles.itemText}> {item.projectName} {(item.state == STATE_COMPLETE) ? "  #Complete" : ""}</Text>
             </TouchableOpacity>
         )
 
@@ -137,6 +212,9 @@ export function Home (props){
 
     }
     
+
+    //---------------------------------------------------------------------
+    //-------------------- page Return -------------------------------------
    
     return(
         
@@ -171,6 +249,7 @@ const homeStyles = StyleSheet.create({
         backgroundColor: '#fff',
     }, 
 
+
     fab:{
         display: 'flex',
         justifyContent: 'center',
@@ -193,6 +272,8 @@ const homeStyles = StyleSheet.create({
         fontSize: 40,
     },
 
+
+
     topCont:{
         display: 'flex',
         justifyContent: 'center',
@@ -203,20 +284,31 @@ const homeStyles = StyleSheet.create({
         width: '100%',
     },
 
+
+
     flist:{
         width: '90%',
         marginVertical: 20,
     },
 
     itemBtn:{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+
         backgroundColor: '#e8e8e8',
-        paddingVertical: 25,
         marginVertical: 10,
     },
 
-    itemBtnSelected:{
+    //removes padding from bottom so that the SelectedItem Container is connected to item container
+    itemBtnSelected:{  
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+
         backgroundColor: '#e8e8e8',
-        paddingVertical: 25,
         marginTop: 10,
     },
 
@@ -244,6 +336,26 @@ const homeStyles = StyleSheet.create({
         backgroundColor: 'coral',
         padding: 2,
         borderRadius: 4,
+    },
+
+
+    itemText:{
+        marginLeft:'15%',
+    },
+
+    itemActive:{
+        height: 80,
+        width: 20,
+        marginLeft: '10%',
+        backgroundColor:"grey",
+    },
+
+    itemComplete:{
+        height: 80,
+        width: 20,
+        marginLeft: '10%',
+        backgroundColor:"#3b3b3b",
     }
+
 
 })

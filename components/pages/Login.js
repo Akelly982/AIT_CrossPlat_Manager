@@ -18,6 +18,7 @@ export function Login(props) {
 
 
     useEffect(()=> {
+        console.log("login propsAuth: " + props.auth)
         if(props.auth){
             //doing this resets the stack so their is no back button
             navigation.reset({ index: 0, routes: [ {name: "Home"} ]})

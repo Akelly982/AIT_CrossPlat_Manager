@@ -5,28 +5,28 @@ import { useNavigation } from '@react-navigation/core';
 
 
 // add for auto generate id
-//{ id: '131113', name: "myHeroBin", state: 1}
+//{ id: '131113', task: "myTask", state: 'TODO'}
 
-export function AddNewProject(props) {
+export function AddNewTask(props) {
     const navigation = useNavigation();
 
-    const [projectName, setProjectName] = useState('')
+    const [taskName, setTaskName] = useState('')
     const [errorMsg, setErrorMsg] = useState(null)
 
     
 
 
-    const newProjectSubmit = () => {
-        console.log('newProject :' + projectName)
+    const newTaskSubmit = () => {
+        console.log('newTask :' + taskName)
 
         let checker = false
-        let uploadName = projectName.trim()
+        let uploadName = taskName.trim()
 
         if(uploadName.length <= 0){
             setErrorMsg("Please fill in project name")
             return
-        }else if (uploadName.length > 15){
-            setErrorMsg("Project name is to long (15)")
+        }else if (uploadName.length > 25){
+            setErrorMsg("Project name is to long (25)")
             return
         }else{
             checker = true
@@ -36,13 +36,13 @@ export function AddNewProject(props) {
 
         if(checker){
             //using add should give it a generated id
-            props.db.collection('Users').doc(props.user.uid).collection('Projects').add({
-                projectName: projectName,
-                state: "ACTIVE"
+            props.db.collection('Users').doc(props.user.uid).collection('Projects').doc(props.parentId).collection('Tasks').add({
+                task: taskName,
+                state: "TODO"
             })
             .then(() => {
                 console.log("Document successfully written!")
-                props.handleHomeUpdater(true)
+                props.handleTaskUpdater(true)
                 navigation.goBack()
             })
             .catch((error) => {
@@ -59,7 +59,7 @@ export function AddNewProject(props) {
     const ErrorMsg = () => {
         if (errorMsg != null){
             return(
-                <Text style={addNewProjectStyles.errorMsg}> Error: {errorMsg}</Text>
+                <Text style={addNewTaskStyles.errorMsg}> Error: {errorMsg}</Text>
             )
         }else{
             // this does work returning null does not cause an error
@@ -71,18 +71,18 @@ export function AddNewProject(props) {
 
 
     return (
-        <View style={addNewProjectStyles.bkg} >
-            <View style={addNewProjectStyles.container}>
-                <ErrorMsg/>
-                <Text style={addNewProjectStyles.title}> -- New Project: -- </Text>
-                <Text>Project name: </Text>
+        <View style={addNewTaskStyles.bkg} >
+            <View style={addNewTaskStyles.container}>
+                <Text style={addNewTaskStyles.title}> -- New Task: -- </Text>
+                <Text>Task name: </Text>
                 <TextInput
-                    onChangeText={ (val) => setProjectName(val) }
-                    style={addNewProjectStyles.input}
+                    onChangeText={ (val) => setTaskName(val) }
+                    style={addNewTaskStyles.input}
                 />
-                <TouchableOpacity onPress={newProjectSubmit} style={addNewProjectStyles.submitBtn}>
-                    <Text style={addNewProjectStyles.submitText}>Submit</Text>
+                <TouchableOpacity onPress={newTaskSubmit} style={addNewTaskStyles.submitBtn}>
+                    <Text style={addNewTaskStyles.submitText}>Submit</Text>
                 </TouchableOpacity>
+                <ErrorMsg/>
             </View>
         </View>
     )
@@ -93,7 +93,7 @@ export function AddNewProject(props) {
 
 
 
-const addNewProjectStyles = StyleSheet.create({
+const addNewTaskStyles = StyleSheet.create({
     bkg:{
         flex: 1,
         alignItems: 'center',

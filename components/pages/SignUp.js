@@ -17,10 +17,11 @@ export function SignUp (props){
     const [validPassword, setValidPassword] = useState(false)
 
     useEffect(()=> {
-        if(props.auth){
-            //doing this resets the stack so their is no back button
-            navigation.reset({ index: 0, routes: [ {name: "Home"} ]})
-        }
+        console.log("SignUp propsAuth: " + props.auth)
+        // if(props.auth){
+        //     //doing this resets the stack so their is no back button
+        //     navigation.reset({ index: 0, routes: [ {name: "Home"} ]})
+        // }
     },[props.auth])
 
     const HandelEmail = (emailVal) => {
