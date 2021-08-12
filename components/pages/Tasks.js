@@ -9,41 +9,50 @@ const tempItems = [
     { id: '457644', task: "myProjectName", state: 'Todo'},
 ]
 
-const SHOW_ALL = 'ALL'
-const SHOW_SPRINT = 'SPRINT'
-const SHOW_TODO = 'TODO'
-const SHOW_COMPLETE = 'COMPLETE'
+const TASKS_ALL = 'ALL'
+const TASKS_SPRINT = 'SPRINT'
+const TASKS_TODO = 'TODO'
+const TASKS_COMPLETE = 'COMPLETE'
+
+
 
 export function Tasks (props){
+
+    const REF_ALL = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks")
+    const REF_COMPLETE = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks").where('state', "==", TASKS_COMPLETE)
+    const REF_SPRINT = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks").where('state', "==", TASKS_SPRINT)
+    const REF_TODO = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks").where('state', "==", TASKS_TODO)
+
+
     const navigation = useNavigation()
-    const [viewSelected, setViewSelected] = useState(SHOW_ALL) 
+    const [viewSelected, setViewSelected] = useState(TASKS_ALL) 
     const [taskData, setTaskData] = useState([])
     const [heldTaskSelectedId, setHeldTaskSelectedId] = useState('')
 
     const [initLoad, setInitLoad] = useState(true) //sometimes list does not update -- this is a support bool
 
 
-
-    useEffect(() =>{
-        console.log("selected view: " + viewSelected)
-    }),[viewSelected]
+    // Display view slection change
+    // useEffect(() =>{
+    //     console.log("selected view: " + viewSelected)
+    // }),[viewSelected]
 
 
     useEffect(() =>{
         if(props.taskUpdater || initLoad){
             //what list do we want to load
             switch(viewSelected) {
-                case SHOW_ALL:
-                    updateTaskListAll()
+                case TASKS_ALL:
+                    updateTaskList(REF_ALL)
                     break;
-                case SHOW_COMPLETE:
-                    updateTaskListComplete()
+                case TASKS_COMPLETE:
+                    updateTaskList(REF_COMPLETE)
                     break;
-                case SHOW_SPRINT:
-                    updateTaskListSprint()
+                case TASKS_SPRINT:
+                    updateTaskList(REF_SPRINT)
                     break;
-                case SHOW_TODO:
-                    updateTaskListTodo()
+                case TASKS_TODO:
+                    updateTaskList(REF_TODO)
                     break;
                 default:
                     console.log("ERROR Task Switch: DEFAULT")
@@ -54,115 +63,78 @@ export function Tasks (props){
     
     
 
+    //-----------------------------------------------------------------------------------
+    //-------------------- Data View Navigation Functions -------------------------------------
 
-
-
-    const allPressed = () => {
+    const allViewPressed = () => {
         //set if not alredy set
-        if(viewSelected != SHOW_ALL){
-            setViewSelected(SHOW_ALL)
+        if(viewSelected != TASKS_ALL){
+            setViewSelected(TASKS_ALL)
             props.handleTaskUpdater(true)
         }
     }
 
-    const todoPressed = () => {
-        if(viewSelected != SHOW_TODO){
-            setViewSelected(SHOW_TODO)
+    const todoViewPressed = () => {
+        if(viewSelected != TASKS_TODO){
+            setViewSelected(TASKS_TODO)
             props.handleTaskUpdater(true)
         }
     }
 
-    const sprintPressed = () => {
-        if(viewSelected != SHOW_SPRINT){
-            setViewSelected(SHOW_SPRINT)
+    const sprintViewPressed = () => {
+        if(viewSelected != TASKS_SPRINT){
+            setViewSelected(TASKS_SPRINT)
             props.handleTaskUpdater(true)
         }
     }
 
-    const completePressed = () => {
+    const completeViewPressed = () => {
         //set if not alredy set
-        if(viewSelected != SHOW_COMPLETE){
-            setViewSelected(SHOW_COMPLETE)
+        if(viewSelected != TASKS_COMPLETE){
+            setViewSelected(TASKS_COMPLETE)
             props.handleTaskUpdater(true)
         }
     }
 
 
-    
+    //---------------------------------------------------------------------
+    //-------------------- Get task list by ref type -------------------------------------
 
-
-    const updateTaskListAll = () => {
+    const updateTaskList = (ref) => {
         props.handleTaskUpdater(false) //stops use effect above from looping runs once
         setTaskData([]) //empty before filling
 
+        // observer
+        // ref.querySnapshot((querySnapshot) => {
+        //     let myData = []
+        //     querySnapshot.forEach((doc)=>{
+        //         //console.log(doc.id, " => ", doc.data().task, " / ", doc.data().state)
+        //         let tempItem = {id: doc.id, task: doc.data().task, state: doc.data().state}
+        //         myData.push(tempItem)
+        //     })
+        //     setTaskData(myData)
+        // })
+
         //get data once
-        const ref = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks")
-        ref.onSnapshot((querySnapshot) => {
+        ref.get()
+        .then((querySnapShot) => {
             let myData = []
-            querySnapshot.forEach((doc)=>{
+            querySnapShot.forEach((doc)=>{
                 //console.log(doc.id, " => ", doc.data().task, " / ", doc.data().state)
                 let tempItem = {id: doc.id, task: doc.data().task, state: doc.data().state}
                 myData.push(tempItem)
             })
             setTaskData(myData)
         })
-    }
-
-    const updateTaskListComplete = () => {
-        props.handleTaskUpdater(false) //stops use effect above from looping runs once
-        setTaskData([]) //empty before filling
-
-        //get data once
-        const ref = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks").where('state', "==", SHOW_COMPLETE)
-        ref.onSnapshot((querySnapshot) => {
-            let myData = []
-            querySnapshot.forEach((doc)=>{
-                //console.log(doc.id, " => ", doc.data().task, " / ", doc.data().state)
-                let tempItem = {id: doc.id, task: doc.data().task, state: doc.data().state}
-                myData.push(tempItem)
-            })
-            setTaskData(myData)
+        .catch((error)=>{
+            props.handleTaskUpdater(false) //stops use effect above from looping runs once
         })
-    }
 
-    const updateTaskListSprint = () => {
-        props.handleTaskUpdater(false) //stops use effect above from looping runs once
-        setTaskData([]) //empty before filling
-
-        //get data once
-        const ref = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks").where('state', "==", SHOW_SPRINT)
-        ref.onSnapshot((querySnapshot) => {
-            let myData = []
-            querySnapshot.forEach((doc)=>{
-                //console.log(doc.id, " => ", doc.data().task, " / ", doc.data().state)
-                let tempItem = {id: doc.id, task: doc.data().task, state: doc.data().state}
-                myData.push(tempItem)
-            })
-            setTaskData(myData)
-        })
-    }
-    
-    const updateTaskListTodo = () => {
-        props.handleTaskUpdater(false) //stops use effect above from looping runs once
-        setTaskData([]) //empty before filling
-
-        //get data once
-        const ref = props.db.collection('Users').doc(props.auth.uid).collection('Projects').doc(props.parentId).collection("Tasks").where('state', "==", SHOW_TODO)
-        ref.onSnapshot((querySnapshot) => {
-            let myData = []
-            querySnapshot.forEach((doc)=>{
-                //console.log(doc.id, " => ", doc.data().task, " / ", doc.data().state)
-                let tempItem = {id: doc.id, task: doc.data().task, state: doc.data().state}
-                myData.push(tempItem)
-            })
-            setTaskData(myData)
-        })
     }
 
 
-
-
-
+    //---------------------------------------------------------------------
+    //-------------------- FAB (Floating Action Button) Btn -------------------------------------
 
 
     const fabBtn = () => {
@@ -170,12 +142,46 @@ export function Tasks (props){
         navigation.navigate('AddNewTask')
     }
 
+    //---------------------------------------------------------------------
+    //-------------------- ITEM Edits -------------------------------------
+    
+    const deleteItem = (item) => {
+        let ref = props.db.collection("Users").doc(props.auth.uid).collection('Projects').doc(props.parentId).collection('Tasks').doc(item.id)
+        ref.delete()
+        .then(()=>{
+            console.log("Delete successfull")
+            props.handleTaskUpdater(true) //trigger home data reload
+        })  
+        .catch((error)=>{
+            console.log('ERROR deleteDoc: ' + error)
+        })
+    }
+
+    const setNewItemState = (item, newState) => {
+
+        let ref = props.db.collection("Users").doc(props.auth.uid).collection('Projects').doc(props.parentId).collection('Tasks').doc(item.id)
+        return ref.update({
+            state: newState   //set state to inv
+        })
+        .then(() => {
+            console.log("state change successfull")
+            console.log("stateChangedTO: " + newState)
+            props.handleTaskUpdater(true) //trigger tasklist data reload
+        })
+        .catch((error) => {
+            console.log('ERROR Item state change: ' + error)
+        })
+    }
+
+
+
+    //---------------------------------------------------------------------
+    //-------------------- ITEM Render -------------------------------------
 
     const renderItem = ({item}) => {
 
         const itemPress = () => {
             //console.log("pressed: " + item.task)
-
             //if item is already selected deslect it
             if(item.id == heldTaskSelectedId){
                 setHeldTaskSelectedId('')
@@ -187,22 +193,64 @@ export function Tasks (props){
         //EDIT ITEM BTNS
         const deletePress = () => {
             console.log("delete: " + item.task)
+            deleteItem(item)
         }
-        const renamePress = () => {
-            console.log("rename: " + item.task)
+        const changeStateCompletePress = () => {
+            console.log("setState_Complete: " + item.task)
+            setNewItemState(item,TASKS_COMPLETE)
         }
-        const alterStatePress = () => {
-            console.log("alterState: " + item.task)
+        const changeStateTodoPress = () => {
+            console.log("setState_Todo: " + item.task)
+            setNewItemState(item,TASKS_TODO)
+        }
+        const changeStateSprintPress = () => {
+            console.log("setState_Sprint: " + item.task)
+            setNewItemState(item,TASKS_SPRINT)
+        }
+
+        // I dont pass item to this function because it is wihtin scope
+        const ItemState = () => {
+
+            // var's to hold our item state text / style data 
+            let str
+            let bkg
+
+            // this works you can put this is a var
+            //let bkg = taskStyles.itemStateBkgComplete
+
+            // var = to my item state
+            switch(item.state) {
+                case TASKS_COMPLETE:
+                    str = "complete"
+                    bkg = taskStyles.itemStateBkgComplete
+                    break;
+                case TASKS_SPRINT:
+                    str = "sprint"
+                    bkg = taskStyles.itemStateBkgSprint
+                    break;
+                case TASKS_TODO:
+                    str = "todo"
+                    bkg = taskStyles.itemStateBkgTodo
+                    break;
+                default:
+                    str = "default"
+            }
+
+            return (
+                <View style={[taskStyles.itemStateCont , bkg]} >
+                    <Text style={taskStyles.itemStateText}> {str} </Text>
+                </View>
+            )
         }
 
 
         const BaseItem = () => (
             <TouchableOpacity
-                style={(item.id == heldTaskSelectedId) ? taskStyles.itemBtnSelected :taskStyles.itemBtn}
-                onPress={() => itemPress()}    
-                onLongPress={() => itemPressHeld()}    
+                style={(item.id == heldTaskSelectedId) ? taskStyles.itemBtnSelected : taskStyles.itemBtn}
+                onPress={() => itemPress()}       
             >
-                <Text> {item.task} </Text>
+                <ItemState />
+                <Text style={taskStyles.itemText}> {item.task} </Text>
             </TouchableOpacity>
         )
 
@@ -219,11 +267,14 @@ export function Tasks (props){
                         <TouchableOpacity style={taskStyles.editBtnDelete} onPress={deletePress}>
                             <Text style={taskStyles.editText}> delete </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={taskStyles.editBtn} onPress={renamePress}>
-                            <Text style={taskStyles.editText}> rename </Text>
+                        <TouchableOpacity style={taskStyles.editBtn} onPress={changeStateCompletePress}>
+                            <Text style={taskStyles.editText}> complete </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={taskStyles.editBtn} onPress={alterStatePress}>
-                            <Text style={taskStyles.editText}> alter state </Text>
+                        <TouchableOpacity style={taskStyles.editBtn} onPress={changeStateTodoPress}>
+                            <Text style={taskStyles.editText}> todo </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={taskStyles.editBtn} onPress={changeStateSprintPress}>
+                            <Text style={taskStyles.editText}> sprint </Text>
                         </TouchableOpacity>
                     </View>  
                 </View>
@@ -235,26 +286,31 @@ export function Tasks (props){
 
     const NavContainer = () => (
             <View style={taskStyles.navCont}>
-                <TouchableOpacity style={ viewSelected == SHOW_ALL  ? taskStyles.navBtnSelected : taskStyles.navBtn  } onPress={allPressed}>
+                <TouchableOpacity style={ viewSelected == TASKS_ALL  ? taskStyles.navBtnSelected : taskStyles.navBtn  } onPress={allViewPressed}>
                     <Text>All</Text>
                 </TouchableOpacity>
 
                 <Text> - </Text>
-                <TouchableOpacity style={ viewSelected == SHOW_SPRINT  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={sprintPressed}>
+                <TouchableOpacity style={ viewSelected == TASKS_SPRINT  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={sprintViewPressed}>
                     <Text>Sprint</Text>
                 </TouchableOpacity>
 
                 <Text> - </Text>
-                <TouchableOpacity style={ viewSelected == SHOW_TODO  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={todoPressed}>
+                <TouchableOpacity style={ viewSelected == TASKS_TODO  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={todoViewPressed}>
                     <Text>Todo</Text>
                 </TouchableOpacity>
 
                 <Text> - </Text>
-                <TouchableOpacity style={ viewSelected == SHOW_COMPLETE  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={completePressed}>
+                <TouchableOpacity style={ viewSelected == TASKS_COMPLETE  ? taskStyles.navBtnSelected : taskStyles.navBtn } onPress={completeViewPressed}>
                     <Text>Complete</Text>
                 </TouchableOpacity>
             </View>
     )
+
+
+
+    //---------------------------------------------------------------------
+    //-------------------- Page Return -------------------------------------
    
     return(
             <View style={taskStyles.container}>
@@ -311,6 +367,8 @@ const taskStyles = StyleSheet.create({
         borderRadius: 2,
     },
 
+
+
     flist:{
         width: '90%',
         marginVertical: 20,
@@ -330,6 +388,17 @@ const taskStyles = StyleSheet.create({
         height: 60,
         borderRadius: 60,
         backgroundColor: 'orange',
+
+        //ios
+        shadowColor: '#2b2b2b',
+        shadowOffset: {
+            width: 10,
+            height: 10,
+        },
+        shadowRadius: 4.65,
+
+        //android
+        elevation: 4,
         
     },
 
@@ -338,17 +407,61 @@ const taskStyles = StyleSheet.create({
         fontSize: 40,
     },
 
+
+
     itemBtn:{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+
         backgroundColor: '#e8e8e8',
-        paddingVertical: 25,
         marginVertical: 10,
     },
 
-    itemBtnSelected:{
+    //removes padding from bottom so that the SelectedItem Container is connected to item container
+    itemBtnSelected:{  
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+
         backgroundColor: '#e8e8e8',
-        paddingVertical: 25,
         marginTop: 10,
     },
+
+    itemStateCont: {
+        height: 80,
+        width: 80, 
+        marginLeft: '5%',
+
+        display: "flex",
+        justifyContent: "center",
+        alignItems:"center",
+    },
+
+    itemStateText: {
+        fontWeight: 'bold',
+    },
+
+    itemText:{
+        marginLeft: '20%',
+    },
+
+    itemStateBkgComplete: {
+        backgroundColor: 'yellow',
+    },
+
+    itemStateBkgSprint: {
+        backgroundColor: 'red',
+    },
+
+    itemStateBkgTodo: {
+        backgroundColor: 'green',
+    },
+
+
+
 
     editCont:{
         marginBottom: 10,
@@ -375,5 +488,13 @@ const taskStyles = StyleSheet.create({
         padding: 2,
         borderRadius: 4,
     }
+
+
+
+    
+
+
+
+
 
 })

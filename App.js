@@ -102,7 +102,6 @@ export default function App() {
 
   const HandleTaskUpdater = (val) => {
     setTaskUpdater(val)
-    console.log("taskUPS: " + taskUpdater)
   }
 
 

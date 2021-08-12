@@ -264,6 +264,18 @@ const homeStyles = StyleSheet.create({
         height: 60,
         borderRadius: 60,
         backgroundColor: 'orange',
+
+
+        //ios
+        shadowColor: '#2b2b2b',
+        shadowOffset: {
+            width: 10,
+            height: 10,
+        },
+        shadowRadius: 4.65,
+
+        //android
+        elevation: 4,
         
     },
 
