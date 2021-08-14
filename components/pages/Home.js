@@ -228,7 +228,6 @@ export function Home (props){
                     data={data}
                     renderItem={renderItem} 
                     keyExtractor={item => item.id}
-                    extraData={props.itemSelectedValue}
                 />
             </View>
 

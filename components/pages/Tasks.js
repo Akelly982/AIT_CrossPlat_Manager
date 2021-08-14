@@ -324,7 +324,6 @@ export function Tasks (props){
                     data={taskData}
                     renderItem={renderItem} 
                     keyExtractor={item => item.id}
-                    // extraData={props.itemSelectedValue}
                 />
             </View>
 

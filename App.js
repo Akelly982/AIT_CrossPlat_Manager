@@ -38,6 +38,7 @@ export default function App() {
   const [parentName,setParentName] = useState(null)
   const [homeUpdater,setHomeUpdater] = useState(true)
   const [taskUpdater,setTaskUpdater] = useState(true)
+  const [errorMsg, setErrorMsg] = useState(null)
 
   firebase.auth().onAuthStateChanged((user)=>{
     if(user){
@@ -49,37 +50,41 @@ export default function App() {
   })
 
   const HandleSignUp = (email,password) => {
-    console.log("Sign Up")
+    //console.log("Sign Up")
 
     firebase.auth().createUserWithEmailAndPassword(email,password)
     .then((response) => {
       //signed in
-      setUser(response)
+      setErrorMsg(null) // reset error msg
+      setUser(response) // update user auth()
     })
     .catch((error) => {
-      console.log(error)
+      console.log(error.message)
+      setErrorMsg(error.message) //to be passed back to user display
     })
   }
 
 
   const HandleLogin = (email,password) =>{
-    console.log("Login")
+    //console.log("Login")
 
     firebase.auth().signInWithEmailAndPassword(email, password)
     .then((user) => {
       // Signed in
-      setUser(user)
+      setErrorMsg(null)  
+      setUser(user) 
     })
     .catch((error) => {
-      var errorCode = error.code;
+      //var errorCode = error.code;
       var errorMessage = error.message;
       console.log('ERROR: ' + errorMessage)
+      setErrorMsg(errorMessage)  
     });
   }
 
 
   const HandleSignOut = () => {
-    console.log("Logout btn")
+    //console.log("Logout btn")
     
     firebase.auth().signOut().then(() => {
       // Sign-out successful.
@@ -105,6 +110,10 @@ export default function App() {
     setTaskUpdater(val)
   }
 
+  const HandleErrorMessage = () => {
+    setErrorMsg(null)
+  }
+
 
   return (
     <NavigationContainer>
@@ -113,10 +122,10 @@ export default function App() {
 
         {/* initial login pages */}
         <Stack.Screen name="Login" options={{title: "Login", headerStyle: {backgroundColor: akTheme.bkgHeader}, headerTintColor: akTheme.textDark }}>
-          { (props) => <Login {...props} handler={HandleLogin} auth={user}/>}
+          { (props) => <Login {...props} handler={HandleLogin} auth={user} errorMsg={errorMsg} handleErrMsg={HandleErrorMessage} />}
         </Stack.Screen>
         <Stack.Screen name="SignUp" options={{title: "SignUp", headerStyle: {backgroundColor: akTheme.bkgHeader}, headerTintColor: akTheme.textDark}}>
-          { (props) => <SignUp {...props} handler={HandleSignUp} auth={user}/>}
+          { (props) => <SignUp {...props} handler={HandleSignUp} auth={user} errorMsg={errorMsg} handleErrMsg={HandleErrorMessage}/>}
         </Stack.Screen>
 
 
@@ -125,7 +134,7 @@ export default function App() {
           options={{
             headerStyle: {backgroundColor: akTheme.bkgHeader}, 
             headerTintColor: akTheme.textDark,
-            headerTitle: "TaskCmd: Home",
+            headerTitle: "Agile-Rex: Home",
             headerRight: () => (
               <TouchableOpacity onPress={ () => HandleSignOut() } style={styles.logoutBtn}> 
                     <Text style={styles.logoutBtnText}>Logout</Text>

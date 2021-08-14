@@ -116,11 +116,6 @@ const addNewTaskStyles = StyleSheet.create({
         paddingHorizontal: 5,
     },
 
-    errorMsgHidden:{
-        textAlign: 'center',
-        color: akTheme.red,
-    },
-
     errorMsg: {
         textAlign: 'center',
         color: akTheme.red,

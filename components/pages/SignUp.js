@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React,{useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import { akTheme } from '../../akTheme';
+import { ErrorMsg } from '../ErrorMsg';
 
 const dHeight = (Dimensions.get('window').height)
 const bkgImage = require('../../assets/kingsAndSpades128_Darker.png')
@@ -16,14 +17,24 @@ export function SignUp (props){
     const [password,setPassword] = useState()
     const [validEmail, setValidEmail] = useState(false)
     const [validPassword, setValidPassword] = useState(false)
+    const [errorMsg, setErrorMsg] = useState(null)
 
     useEffect(()=> {
-        console.log("SignUp propsAuth: " + props.auth)
+        //console.log("SignUp propsAuth: " + props.auth)
         if(props.auth){
             //doing this resets the stack so their is no back button
             navigation.reset({ index: 0, routes: [ {name: "Home"} ]})
         }
     },[props.auth])
+
+    useEffect(()=> {
+        if(props.errorMsg){
+            setErrorMsg(props.errorMsg)
+        }
+        else{
+            setErrorMsg(null)
+        }
+    },[props.errorMsg])
 
     const HandelEmail = (emailVal) => {
         //validate email
@@ -38,19 +49,22 @@ export function SignUp (props){
 
     const HandelPassword = (passwordVal) => {
         //validate password
-        console.log("setPassword 1: " + passwordVal)
         if(passwordVal.length >= 8){
             setValidPassword(true)
         }else{
             setValidPassword(false)
         }
-        console.log("setPassword 2: " + passwordVal)
         setPassword(passwordVal)
     }
 
     const HandelSubmit = () => { 
         props.handler(email,password)
     } 
+
+    const navigateToLogin = () => {
+        props.handleErrMsg()
+        navigation.navigate("Login") 
+    }
 
    
     return(
@@ -76,9 +90,11 @@ export function SignUp (props){
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={[SignUpStyles.button2, SignUpStyles.spacing ]} 
-                    onPress={()=> navigation.navigate('Login')}>
+                    onPress={()=> navigateToLogin()}>
                         <Text style={SignUpStyles.buttonText}> Sign in to your account </Text>
                 </TouchableOpacity>
+
+                <ErrorMsg msg={errorMsg}/>
             </View>
         </ImageBackground>
     )

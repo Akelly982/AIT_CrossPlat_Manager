@@ -7,9 +7,9 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/Rex_256.png",
+      "image": "./assets/Rex_2048x1024.png",
       "resizeMode": "contain",
-      "backgroundColor": "#343434",
+      "backgroundColor": "#343434"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

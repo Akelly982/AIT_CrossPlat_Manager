@@ -3,6 +3,8 @@ import React,{useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground,Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 import { akTheme } from '../../akTheme';
+import { ErrorMsg } from '../ErrorMsg';
+
 
 const dHeight = (Dimensions.get('window').height)
 const bkgImage = require('../../assets/kingsAndSpades128_Darker.png')
@@ -14,19 +16,38 @@ const bkgImage = require('../../assets/kingsAndSpades128_Darker.png')
 export function Login(props) {
     const [email,setEmail] = useState('')
     const [password,setPassword] = useState('')
+    const [errorMsg, setErrorMsg] = useState(null)
 
     const navigation = useNavigation();
 
 
     useEffect(()=> {
-        console.log("login propsAuth: " + props.auth)
+        //console.log("login propsAuth: " + props.auth)
         if(props.auth){
             //doing this resets the stack so their is no back button
             navigation.reset({ index: 0, routes: [ {name: "Home"} ]})
         }
     },[props.auth])
 
+    useEffect(()=> {
+        if(props.errorMsg){
+            setErrorMsg(props.errorMsg)
+        }
+        else{
+            setErrorMsg(null)
+        }
+    },[props.errorMsg])
 
+
+    const handleLogin = () => {
+        //handle error message if it returns an error and display to user
+        props.handler(email,password)
+    }
+
+    const navigateToSignUp = () => {
+        props.handleErrMsg()
+        navigation.navigate("SignUp") 
+    }
 
     return (
         <ImageBackground source={bkgImage} resizeMode="repeat" style={LoginStyles.bkgImage} >
@@ -43,12 +64,14 @@ export function Login(props) {
                     style={LoginStyles.input}
                     secureTextEntry={true}
                 />
-                <TouchableOpacity style={[LoginStyles.button, LoginStyles.spacing]} onPress={ () => props.handler(email,password)}>
+                <TouchableOpacity style={[LoginStyles.button, LoginStyles.spacing]} onPress={ () => handleLogin()}>
                     <Text style={LoginStyles.buttonText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[LoginStyles.button2, LoginStyles.spacing]} onPress={ () => navigation.navigate("SignUp") }>
+                <TouchableOpacity style={[LoginStyles.button2, LoginStyles.spacing]} onPress={ () => navigateToSignUp() }>
                     <Text style={LoginStyles.buttonText}>Sign up for an account</Text>
                 </TouchableOpacity>
+
+                <ErrorMsg msg={errorMsg}/>
             </View>
         </ImageBackground>
     )
