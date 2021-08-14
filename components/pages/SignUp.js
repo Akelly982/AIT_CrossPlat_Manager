@@ -2,6 +2,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React,{useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
+import { akTheme } from '../../akTheme';
 
 const dHeight = (Dimensions.get('window').height)
 const bkgImage = require('../../assets/kingsAndSpades128_Darker.png')
@@ -18,10 +19,10 @@ export function SignUp (props){
 
     useEffect(()=> {
         console.log("SignUp propsAuth: " + props.auth)
-        // if(props.auth){
-        //     //doing this resets the stack so their is no back button
-        //     navigation.reset({ index: 0, routes: [ {name: "Home"} ]})
-        // }
+        if(props.auth){
+            //doing this resets the stack so their is no back button
+            navigation.reset({ index: 0, routes: [ {name: "Home"} ]})
+        }
     },[props.auth])
 
     const HandelEmail = (emailVal) => {
@@ -37,11 +38,13 @@ export function SignUp (props){
 
     const HandelPassword = (passwordVal) => {
         //validate password
+        console.log("setPassword 1: " + passwordVal)
         if(passwordVal.length >= 8){
             setValidPassword(true)
         }else{
             setValidPassword(false)
         }
+        console.log("setPassword 2: " + passwordVal)
         setPassword(passwordVal)
     }
 
@@ -63,7 +66,7 @@ export function SignUp (props){
                 <TextInput
                     onChangeText={ (val) => HandelPassword(val) }
                     style={(validPassword)? SignUpStyles.input : SignUpStyles.invalidInput}
-                    secureTextEntry={true}
+                    secureTextEntry={true} //change chars to dots for password
                 />
                 <TouchableOpacity 
                     style={[(validEmail && validPassword) ? SignUpStyles.button : SignUpStyles.buttonDisabled, SignUpStyles.spacing ]} 
@@ -91,7 +94,7 @@ const SignUpStyles = StyleSheet.create({
     },
     container:{
         width:300,
-        backgroundColor: "#fff",
+        backgroundColor: akTheme.bkgLoginSignUpCont,
         paddingHorizontal:20,
         paddingVertical:10,
         borderRadius:20,
@@ -99,30 +102,38 @@ const SignUpStyles = StyleSheet.create({
     heading: {
         fontSize: 22,
         textAlign: 'center',
-        color: "#3b3b3b",
+        color: akTheme.textDark,
     },  
+
+
+    // if you change the style to much it emptys the string / char data on style change
     input: {
         paddingHorizontal:10,
         fontSize:18,
-        borderColor: '#e8e8e8',
+        borderColor: akTheme.inputBorder,
+        backgroundColor: akTheme.inputBkg,
         borderWidth: 2,
+        paddingHorizontal: 5,
     },
     invalidInput:{
         paddingHorizontal:10,
         fontSize:18,
-        borderColor: 'red',
-        borderStyle: 'dashed',
+        borderColor: akTheme.red,
+        backgroundColor: akTheme.inputBkg,
         borderWidth: 2,
+        paddingHorizontal: 5,
     },
+
+
     button:{
-        backgroundColor: "#2b2b2b",
+        backgroundColor: akTheme.blue,
         padding: 3,
         marginVertical: 5,
         paddingVertical: 5,
         borderRadius:5,
     },
     button2:{
-        backgroundColor: "#bbbbbb",
+        backgroundColor: akTheme.red,
         padding: 3,
         marginVertical: 5,
         paddingVertical: 5,
@@ -130,10 +141,10 @@ const SignUpStyles = StyleSheet.create({
     },
     buttonText:{
         textAlign: 'center',
-        color: "#e8e8e8",
+        color: akTheme.textLight,
     },
     buttonDisabled:{
-        backgroundColor: "red",
+        backgroundColor: akTheme.red,
         padding: 3,
         marginVertical: 5,
         paddingVertical: 5,

@@ -2,6 +2,7 @@
 import React,{useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground,Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
+import { akTheme } from '../../akTheme';
 
 
 // add for auto generate id
@@ -98,29 +99,31 @@ const addNewProjectStyles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: "#3b3b3b",
+        backgroundColor: akTheme.bkgDark,
     },
     container:{
         width:300,
-        backgroundColor: "#fff",
+        backgroundColor: akTheme.bkgInnerPageContainers,
         paddingHorizontal:20,
         paddingVertical:20,
         borderRadius:20,
     },
     input:{
-        backgroundColor: '#e8e8e8',
+        backgroundColor: akTheme.textLight,
+        borderWidth: 2,
+        borderColor: akTheme.inputBorder,
         height: 30,
         paddingHorizontal: 5,
     },
 
     errorMsgHidden:{
         textAlign: 'center',
-        color: 'red',
+        color: akTheme.red,
     },
 
     errorMsg: {
         textAlign: 'center',
-        color: 'red',
+        color: akTheme.red,
         marginTop: 10,
     },
 
@@ -130,11 +133,11 @@ const addNewProjectStyles = StyleSheet.create({
         borderRadius: 5,
         width: 80,
         alignSelf: 'center',
-        backgroundColor: "#3b3b3b",
+        backgroundColor: akTheme.blue,
     },
 
     submitText:{
-        color: "#e8e8e8",
+        color: akTheme.textLight,
         textAlign: 'center',
     },
 

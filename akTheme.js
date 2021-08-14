@@ -1,21 +1,24 @@
 
-const accent = '#535f6b'
-const accent2 = '#A6A3CC'
 const textLight = "#e8e8e8"
 const textDark = "#3b3b3b"
-const light = "#e8e8e8"
-const darker = "2b2b2b"
+const bkgColor1 = "#DFDFDF"
 
 export const akTheme = {
-    
-    accentColor: accent,
-    baseColor: '#fff',
-    bkgLight: light,
-    bkgDark: darker,
+
+    green: "#a5e4c5",
+    red: "#e69b9b",
+    blue: "#afbde6",
+    bkgHeader: bkgColor1,
+    bkgItems: bkgColor1,
+    bkgDark: '#343434',
     textLight: textLight,
     textDark: textDark,
+    bkgLoginSignUpCont: bkgColor1,
+    inputBorder: "#aaaaaa",
+    inputBkg: textLight,
+    itemEditCont: '#555',
+    bkgInnerPageContainers: bkgColor1,
+}
 
-  }
-  export default Theme
 
 

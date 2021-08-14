@@ -2,6 +2,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, {useState,useEffect}from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { akTheme } from '../../akTheme';
 
 
 
@@ -246,7 +247,7 @@ const homeStyles = StyleSheet.create({
         flex:1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: akTheme.bkgDark,
     }, 
 
 
@@ -263,10 +264,10 @@ const homeStyles = StyleSheet.create({
         width:60,
         height: 60,
         borderRadius: 60,
-        backgroundColor: 'orange',
+        backgroundColor: akTheme.blue,
 
 
-        //ios
+        //ios   (not sure if this works)
         shadowColor: '#2b2b2b',
         shadowOffset: {
             width: 10,
@@ -280,21 +281,10 @@ const homeStyles = StyleSheet.create({
     },
 
     fabText:{
-        color: '#e8e8e8',
+        color: akTheme.textLight,
         fontSize: 40,
     },
 
-
-
-    topCont:{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        height: 50,
-        backgroundColor: 'red',
-        width: '100%',
-    },
 
 
 
@@ -309,7 +299,7 @@ const homeStyles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
 
-        backgroundColor: '#e8e8e8',
+        backgroundColor: akTheme.bkgItems,
         marginVertical: 10,
     },
 
@@ -320,13 +310,13 @@ const homeStyles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
 
-        backgroundColor: '#e8e8e8',
+        backgroundColor: akTheme.bkgItems,
         marginTop: 10,
     },
 
     editCont:{
         marginBottom: 10,
-        backgroundColor: "#3b3b3b",
+        backgroundColor: akTheme.itemEditCont,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-evenly',
@@ -335,17 +325,17 @@ const homeStyles = StyleSheet.create({
     },
 
     editText:{
-        color: "#e8e8e8",
+        color: akTheme.textLight,
     },
 
     editBtnDelete:{
-        backgroundColor: 'lightcoral',
+        backgroundColor: akTheme.red,
         padding: 2,
         borderRadius: 4,
     },
 
     editBtn:{
-        backgroundColor: 'coral',
+        backgroundColor: akTheme.blue,
         padding: 2,
         borderRadius: 4,
     },
@@ -359,14 +349,14 @@ const homeStyles = StyleSheet.create({
         height: 80,
         width: 20,
         marginLeft: '10%',
-        backgroundColor:"grey",
+        backgroundColor: akTheme.green,
     },
 
     itemComplete:{
         height: 80,
         width: 20,
         marginLeft: '10%',
-        backgroundColor:"#3b3b3b",
+        backgroundColor: akTheme.red,
     }
 
 

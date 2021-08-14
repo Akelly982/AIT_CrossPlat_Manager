@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, {useState,useEffect}from 'react';
 import { FlatList, StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native';
+import { akTheme } from '../../akTheme';
 
 
 
@@ -337,7 +338,7 @@ const taskStyles = StyleSheet.create({
         flex:1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: akTheme.bkgDark,
     }, 
 
     navCont:{
@@ -346,7 +347,7 @@ const taskStyles = StyleSheet.create({
         justifyContent: 'space-evenly',
         alignItems: 'center',
         height: 50,
-        backgroundColor: '#e8e8e8',
+        backgroundColor: akTheme.textLight,
         width: '100%',
         paddingHorizontal: '20%',
     },
@@ -365,6 +366,17 @@ const taskStyles = StyleSheet.create({
         borderWidth: 1,
         borderStyle: 'solid',
         borderRadius: 2,
+
+        //ios   (not sure if this works)
+        shadowColor: '#2b2b2b',
+        shadowOffset: {
+            width: 10,
+            height: 10,
+        },
+        shadowRadius: 4.65,
+
+        //android
+        elevation: 2,
     },
 
 
@@ -387,7 +399,7 @@ const taskStyles = StyleSheet.create({
         width:60,
         height: 60,
         borderRadius: 60,
-        backgroundColor: 'orange',
+        backgroundColor: akTheme.blue,
 
         //ios
         shadowColor: '#2b2b2b',
@@ -403,7 +415,7 @@ const taskStyles = StyleSheet.create({
     },
 
     fabText:{
-        color: '#e8e8e8',
+        color: akTheme.textLight,
         fontSize: 40,
     },
 
@@ -415,7 +427,7 @@ const taskStyles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
 
-        backgroundColor: '#e8e8e8',
+        backgroundColor: akTheme.bkgItems,
         marginVertical: 10,
     },
 
@@ -426,14 +438,14 @@ const taskStyles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
 
-        backgroundColor: '#e8e8e8',
+        backgroundColor: akTheme.bkgItems,
         marginTop: 10,
     },
 
     itemStateCont: {
         height: 80,
         width: 80, 
-        marginLeft: '5%',
+        // marginLeft: '5%',
 
         display: "flex",
         justifyContent: "center",
@@ -449,15 +461,15 @@ const taskStyles = StyleSheet.create({
     },
 
     itemStateBkgComplete: {
-        backgroundColor: 'yellow',
+        backgroundColor: akTheme.red,
     },
 
     itemStateBkgSprint: {
-        backgroundColor: 'red',
+        backgroundColor: akTheme.blue,
     },
 
     itemStateBkgTodo: {
-        backgroundColor: 'green',
+        backgroundColor: akTheme.green,
     },
 
 
@@ -465,7 +477,7 @@ const taskStyles = StyleSheet.create({
 
     editCont:{
         marginBottom: 10,
-        backgroundColor: "#3b3b3b",
+        backgroundColor: akTheme.itemEditCont,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-evenly',
@@ -478,13 +490,13 @@ const taskStyles = StyleSheet.create({
     },
 
     editBtnDelete:{
-        backgroundColor: 'lightcoral',
+        backgroundColor: akTheme.red,
         padding: 2,
         borderRadius: 4,
     },
 
     editBtn:{
-        backgroundColor: 'coral',
+        backgroundColor: akTheme.blue,
         padding: 2,
         borderRadius: 4,
     }

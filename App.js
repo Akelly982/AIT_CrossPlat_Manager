@@ -8,6 +8,7 @@ import * as firebase from 'firebase';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import { akTheme } from './akTheme';
 import { SignUp } from './components/pages/SignUp';
 import {Login} from './components/pages/Login';
 import { Home } from './components/pages/Home';
@@ -111,10 +112,10 @@ export default function App() {
 
 
         {/* initial login pages */}
-        <Stack.Screen name="Login" options={{title: "Login"}}>
+        <Stack.Screen name="Login" options={{title: "Login", headerStyle: {backgroundColor: akTheme.bkgHeader}, headerTintColor: akTheme.textDark }}>
           { (props) => <Login {...props} handler={HandleLogin} auth={user}/>}
         </Stack.Screen>
-        <Stack.Screen name="SignUp" options={{title: "SignUp"}}>
+        <Stack.Screen name="SignUp" options={{title: "SignUp", headerStyle: {backgroundColor: akTheme.bkgHeader}, headerTintColor: akTheme.textDark}}>
           { (props) => <SignUp {...props} handler={HandleSignUp} auth={user}/>}
         </Stack.Screen>
 
@@ -122,6 +123,8 @@ export default function App() {
         {/* Agile Task Manager */}
         <Stack.Screen name="Home" 
           options={{
+            headerStyle: {backgroundColor: akTheme.bkgHeader}, 
+            headerTintColor: akTheme.textDark,
             headerTitle: "TaskCmd: Home",
             headerRight: () => (
               <TouchableOpacity onPress={ () => HandleSignOut() } style={styles.logoutBtn}> 
@@ -136,6 +139,8 @@ export default function App() {
         <Stack.Screen name="Tasks" 
           options={{
             headerTitle: "Tasks: " + (parentName != null ? parentName : "error parentName null"),
+            headerStyle: {backgroundColor: akTheme.bkgHeader}, 
+            headerTintColor: akTheme.textDark,
           }}
           >
             {(props) => <Tasks {...props} parentId={parentId} handleTaskUpdater={HandleTaskUpdater} taskUpdater={taskUpdater} db={dbh} auth={user} />}
@@ -147,6 +152,8 @@ export default function App() {
         <Stack.Screen name="AddNewProject" 
           options={{
             headerTitle: "Add new project",
+            headerStyle: {backgroundColor: akTheme.bkgHeader}, 
+            headerTintColor: akTheme.textDark,
           }}
           >
             {(props) => <AddNewProject {...props} user={user} db={dbh} handleHomeUpdater={HandleHomeUpdater} />}
@@ -155,6 +162,8 @@ export default function App() {
         <Stack.Screen name="AddNewTask" 
           options={{
             headerTitle: "Add new Task",
+            headerStyle: {backgroundColor: akTheme.bkgHeader}, 
+            headerTintColor: akTheme.textDark,
           }}
           >
             {(props) => <AddNewTask {...props} user={user} parentId={parentId} db={dbh} handleTaskUpdater={HandleTaskUpdater} />}
@@ -162,6 +171,8 @@ export default function App() {
 
         <Stack.Screen name="RenameProject" 
           options={{
+            headerStyle: {backgroundColor: akTheme.bkgHeader}, 
+            headerTintColor: akTheme.textDark,
             headerTitle: "Rename: " + (parentName != null ? parentName : "error parentName null") ,
           }}
           >
@@ -184,17 +195,18 @@ const styles = StyleSheet.create({
   //   height: 1000,
   // }
 
+  // the style is set here for logout btn in home screen
   logoutBtn:{
     marginRight: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
-    backgroundColor: '#2b2b2b',
+    backgroundColor: akTheme.textDark,
 
   },
 
   logoutBtnText:{
-    color: '#e8e8e8',
+    color: akTheme.textLight,
   },
 
 });

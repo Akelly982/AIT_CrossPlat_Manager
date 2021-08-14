@@ -2,6 +2,7 @@
 import React,{useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground,Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
+import { akTheme } from '../../akTheme';
 
 const dHeight = (Dimensions.get('window').height)
 const bkgImage = require('../../assets/kingsAndSpades128_Darker.png')
@@ -65,7 +66,7 @@ const LoginStyles = StyleSheet.create({
     },
     container:{
         width:300,
-        backgroundColor: "#fff",
+        backgroundColor: akTheme.bkgLoginSignUpCont,
         paddingHorizontal:20,
         paddingVertical:10,
         borderRadius:20,
@@ -73,22 +74,24 @@ const LoginStyles = StyleSheet.create({
     heading: {
         fontSize: 22,
         textAlign: 'center',
-        color: "#3b3b3b",
+        color: akTheme.textDark,
     },
     input: {
         fontSize: 18,
-        borderColor: '#e8e8e8',
+        borderColor: akTheme.inputBorder,
+        backgroundColor: akTheme.inputBkg,
         borderWidth: 2,
+        paddingHorizontal: 5,
     },
     button: {
-        backgroundColor: "#2b2b2b",
+        backgroundColor: akTheme.blue,
         padding: 3,
         marginVertical: 5,
         paddingVertical: 5,
         borderRadius: 5,
     },
     button2: {
-        backgroundColor: "#bbbbbb",
+        backgroundColor: akTheme.red,
         padding: 3,
         marginVertical: 5,
         paddingVertical: 5,
@@ -96,7 +99,7 @@ const LoginStyles = StyleSheet.create({
     },
     buttonText: {
         textAlign: 'center',
-        color: "#e8e8e8",
+        color: akTheme.textLight,
     },
     spacing:{
         marginTop: 10,
